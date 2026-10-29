@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Royal Brothers QA & Audio Diarization Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f8fafc; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .table-fixed-header th { position: sticky; top: 0; z-index: 10; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Audio Diarization & QA Studio</h1>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">Batch 500x</span>
+            <span class="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Royal Brothers Rubric</span>
+          </div>
+          <p class="text-xs text-slate-500">100% Verbatim Agent & Customer Bifurcation • Soft Skills & Compliance AI Evaluation</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <button id="quickSampleBatchBtn" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition-colors">
+          <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          Load 10 Sample Calls
+        </button>
+
+        <button id="apiKeyToggleBtn" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition-colors">
+          <svg class="w-3.5 h-3.5 mr-1.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+          </svg>
+          API Key
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 w-full">
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+      <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-2xs">
+        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Ingested</span>
+        <div class="flex items-baseline space-x-1.5 mt-1">
+          <span id="statTotalCount" class="text-xl font-bold font-mono text-slate-900">0</span>
+          <span class="text-xs text-slate-400">/ 500 max</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-2xs">
+        <span class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">Completed</span>
+        <div class="flex items-baseline space-x-1.5 mt-1">
+          <span id="statCompletedCount" class="text-xl font-bold font-mono text-emerald-600">0</span>
+          <span id="statCompletedPct" class="text-xs text-slate-400 font-mono">(0%)</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-2xs">
+        <span class="text-[11px] font-semibold text-indigo-600 uppercase tracking-wider">In Progress</span>
+        <div class="flex items-baseline space-x-1.5 mt-1">
+          <span id="statActiveWorkersCount" class="text-xl font-bold font-mono text-indigo-600">0</span>
+          <span class="text-xs text-slate-400">workers active</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-2xs">
+        <span class="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">Queued</span>
+        <div class="flex items-baseline space-x-1.5 mt-1">
+          <span id="statQueuedCount" class="text-xl font-bold font-mono text-amber-600">0</span>
+          <span class="text-xs text-slate-400">pending</span>
+        </div>
+      </div>
+
+      <div class="col-span-2 sm:col-span-4 lg:col-span-1 bg-white rounded-xl border border-slate-200 p-3.5 shadow-2xs">
+        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Throughput / Failed</span>
+        <div class="flex items-baseline space-x-1.5 mt-1">
+          <span id="statFailedCount" class="text-xl font-bold font-mono text-red-600">0 fail</span>
+          <span id="statThroughput" class="text-xs text-slate-400 ml-auto font-mono">0 fl/min</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <div class="lg:col-span-4 flex flex-col space-y-5">
+
+      <!-- Upload Zone Card (Supports up to 500 files) -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-bold text-slate-900 flex items-center">
+            <svg class="w-4 h-4 text-indigo-600 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            Batch Ingestion (Up to 500)
+          </h2>
+          <span id="batchCountBadge" class="text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0 / 500</span>
+        </div>
+
+        <!-- Drag and Drop Box -->
+        <div id="dropZone" class="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-xl p-6 text-center cursor-pointer transition-all bg-slate-50/50 hover:bg-indigo-50/40 group">
+          <input type="file" id="audioFileInput" multiple accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac" class="hidden">
+          <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+            </svg>
+          </div>
+          <p class="text-xs font-medium text-slate-700 mb-1">
+            <span class="text-indigo-600 font-semibold underline">Select audio files</span> or drag & drop
+          </p>
+          <p class="text-[11px] text-slate-400">Accepts bulk selection of up to 500 files (MP3, WAV, M4A, OGG)</p>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-slate-100">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-bold text-slate-700 flex items-center">
+              <svg class="w-3.5 h-3.5 text-indigo-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Concurrent Workers
+            </label>
+            <span id="concurrencyValueBadge" class="text-xs font-mono font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md">5 Parallel</span>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button class="concurrency-btn px-2 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700" data-concurrency="2">2x</button>
+            <button class="concurrency-btn px-2 py-1.5 text-xs font-semibold rounded-lg border border-indigo-600 bg-indigo-50 text-indigo-700 shadow-xs" data-concurrency="5">5x</button>
+            <button class="concurrency-btn px-2 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700" data-concurrency="8">8x</button>
+            <button class="concurrency-btn px-2 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700" data-concurrency="10">10x</button>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-2">Adjust concurrency to process up to 500 files rapidly with automatic rate-limit throttling.</p>
+        </div>
+
+        <div class="mt-5 pt-4 border-t border-slate-100 flex flex-col space-y-2">
+          <button id="startBatchProcessBtn" disabled class="w-full flex items-center justify-center px-4 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-indigo-100 transition-all">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            </svg>
+            Start Royal Brothers Batch Audit
+          </button>
+
+          <div class="flex items-center space-x-2">
+            <button id="stopBatchProcessBtn" disabled class="flex-1 flex items-center justify-center px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+              Pause Pipeline
+            </button>
+            <button id="clearBatchBtn" class="flex-1 flex items-center justify-center px-3 py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all">
+              Clear Queue
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs">
+        <div class="flex items-center justify-between text-xs font-bold text-slate-700 mb-1.5">
+          <span>Overall Batch Progress</span>
+          <span id="batchPercentText" class="font-mono text-indigo-600">0%</span>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden mb-3">
+          <div id="batchOverallProgressBar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-slate-500 font-mono">
+          <span id="batchProgressFraction">0 / 0 Processed</span>
+          <span id="batchEtaText">ETA: --</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="lg:col-span-8 flex flex-col space-y-5">
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-sm sm:text-base font-bold text-slate-900 flex items-center">
+            Batch Diarization Master Grid
+            <span id="tableCountBadge" class="ml-2 px-2 py-0.5 text-xs font-mono font-semibold rounded-full bg-slate-100 text-slate-600">0 records</span>
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5">Strict CSV output: Soft Skills (1-10), 12 Rubric Checks, Fatal Checks, Summary & 100% Verbatim Transcript</p>
+        </div>
+
+        <button id="downloadConsolidatedBatchCsvBtn" disabled class="inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-emerald-100 transition-all shrink-0">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Download Audit CSV (<span id="csvReadyCount">0</span>)
+        </button>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-col flex-1 overflow-hidden min-h-[500px]">
+        <div class="p-3 sm:p-4 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/50">
+          <div class="flex items-center space-x-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            <button class="status-filter-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-2xs" data-status="all">All (<span id="filterAllCount">0</span>)</button>
+            <button class="status-filter-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50" data-status="completed">Completed (<span id="filterCompletedCount">0</span>)</button>
+            <button class="status-filter-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50" data-status="processing">In Progress (<span id="filterProcessingCount">0</span>)</button>
+            <button class="status-filter-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50" data-status="queued">Queued (<span id="filterQueuedCount">0</span>)</button>
+            <button class="status-filter-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50" data-status="error">Failed (<span id="filterErrorCount">0</span>)</button>
+          </div>
+
+          <div class="w-full sm:w-64 relative">
+            <input type="text" id="batchSearchInput" placeholder="Search files, transcripts, or reasons..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-sans">
+            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-x-auto max-h-[580px]">
+          <table class="w-full text-left text-xs border-collapse table-fixed-header">
+            <thead>
+              <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 font-bold">
+                <th class="py-2.5 px-3 w-12 text-center bg-slate-100">#</th>
+                <th class="py-2.5 px-4 w-44 bg-slate-100 border-r border-slate-200">File name</th>
+                <th class="py-2.5 px-3 w-28 bg-slate-100 text-center">Status</th>
+                <th class="py-2.5 px-3 w-28 bg-slate-100 text-center">Total Score</th>
+                <th class="py-2.5 px-4 w-48 bg-slate-100 border-r border-slate-200">Call Metadata</th>
+                <th class="py-2.5 px-4 w-52 bg-slate-100 border-r border-slate-200">Gaps Observed</th>
+                <th class="py-2.5 px-4 bg-slate-100">Transcription Excerpt</th>
+                <th class="py-2.5 px-3 w-20 text-center bg-slate-100">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="batchTableBody" class="divide-y divide-slate-100">
+              <tr>
+                <td colspan="8" class="text-center py-16 text-slate-400">
+                  <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
+                  </svg>
+                  <p class="text-xs font-medium">No audio files in batch</p>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Upload up to 500 files or click "Load 10 Sample Calls"</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <div id="inspectorModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-2xl max-w-4xl w-full p-6 shadow-xl border border-slate-100 flex flex-col max-h-[90vh]">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div class="truncate mr-4">
+          <div class="flex items-center space-x-2">
+            <span class="text-[10px] uppercase font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded">Royal Brothers Call Audit</span>
+            <span id="inspectorOverallStatus" class="font-bold px-2 py-0.5 rounded-md text-xs bg-slate-100 text-slate-700">Pass</span>
+            <span id="inspectorFatalTrigger" class="text-xs font-semibold text-rose-600 ml-2"></span>
+          </div>
+          <h3 id="inspectorModalFileName" class="text-sm font-bold text-slate-900 truncate mt-1">file_name.wav</h3>
+        </div>
+        <button id="closeInspectorModal" class="text-slate-400 hover:text-slate-600 p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="flex items-center space-x-4 border-b border-slate-200 mb-4 text-xs font-bold">
+        <button id="modalTabAudit" class="px-3 py-2 border-b-2 border-indigo-600 text-indigo-600 focus:outline-none">
+          QA Audit Scorecard & Rubric
+        </button>
+        <button id="modalTabTranscript" class="px-3 py-2 text-slate-500 hover:text-slate-700 border-b-2 border-transparent focus:outline-none">
+          100% Verbatim Bifurcated Transcript
+        </button>
+      </div>
+
+      <div id="modalAuditContent" class="flex-1 overflow-y-auto space-y-4 pr-1">
+        <!-- Summary Card -->
+        <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 text-xs flex justify-between items-start">
+          <div>
+            <span class="font-bold text-indigo-900 block mb-1">Overall Call Summary & Coaching Priority:</span>
+            <p id="inspectorSummaryText" class="text-indigo-800 leading-relaxed italic">Summary loading...</p>
+          </div>
+          <div class="text-right ml-4 shrink-0">
+            <span class="block text-[10px] font-bold text-indigo-700 uppercase tracking-wider mb-1">Total Score</span>
+            <span id="inspectorModalScoreBadge" class="text-lg font-bold font-mono px-3 py-1 rounded-lg bg-indigo-600 text-white shadow-sm">-- / 100</span>
+          </div>
+        </div>
+
+        <!-- Metadata Grid -->
+        <div class="bg-white rounded-xl border border-slate-200 p-3">
+          <span class="text-xs font-bold text-slate-800 uppercase tracking-wider block mb-2">Call Extracted Metadata</span>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+             <div><span class="text-slate-500 block text-[10px] uppercase">Call Type</span><span id="metaCallType" class="font-medium text-slate-900">--</span></div>
+             <div><span class="text-slate-500 block text-[10px] uppercase">City</span><span id="metaCity" class="font-medium text-slate-900">--</span></div>
+             <div><span class="text-slate-500 block text-[10px] uppercase">Location</span><span id="metaLocation" class="font-medium text-slate-900">--</span></div>
+             <div><span class="text-slate-500 block text-[10px] uppercase">Vehicle Model</span><span id="metaVehicle" class="font-medium text-slate-900">--</span></div>
+             <div class="col-span-2"><span class="text-slate-500 block text-[10px] uppercase">Sale Lost Reason</span><span id="metaSaleLost" class="font-medium text-amber-700">--</span></div>
+             <div class="col-span-3"><span class="text-slate-500 block text-[10px] uppercase">Customer Feedback</span><span id="metaFeedback" class="font-medium italic text-slate-700">--</span></div>
+          </div>
+        </div>
+
+        <!-- QA Table -->
+        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div class="bg-slate-50 px-4 py-2 border-b border-slate-200 flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-800 uppercase tracking-wider">Full QA Scorecard (13 Parameters - Max 100 Pts)</span>
+          </div>
+          <div class="overflow-x-auto max-h-96">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="py-2 px-3 w-64">Parameter</th>
+                  <th class="py-2 px-3 w-20 text-center">Score</th>
+                  <th class="py-2 px-3">Reason (Context / Gaps)</th>
+                </tr>
+              </thead>
+              <tbody id="inspectorTable2Body" class="divide-y divide-slate-100">
+                <tr><td colspan="3" class="text-center py-4 text-slate-400">Loading audit parameters...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="modalTranscriptContent" class="flex-1 flex flex-col hidden overflow-hidden">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs text-slate-500 font-medium">100% Verbatim Diarized Dialogue:</span>
+          <button id="modalCopyBtn" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
+            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            </svg>
+            Copy Transcription
+          </button>
+        </div>
+        <div class="flex-1 overflow-y-auto bg-slate-50 border border-slate-200 rounded-xl p-4 font-mono text-xs text-slate-800 whitespace-pre-wrap leading-relaxed" id="inspectorModalText">
+          Transcription text...
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+        <button id="closeInspectorModalBtn" class="px-4 py-2 text-xs font-semibold bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="apiKeyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center">
+          <svg class="w-4 h-4 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+          </svg>
+          Gemini API Configuration
+        </h3>
+        <button id="closeApiKeyModal" class="text-slate-400 hover:text-slate-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+        Leave empty to use the system default key, or enter your dedicated Gemini API key for higher batch throughput.
+      </p>
+      <div class="space-y-3 mb-5">
+        <label class="block text-xs font-semibold text-slate-700">Google Gemini API Key</label>
+        <input type="password" id="customApiKeyInput" placeholder="AIzaSy..." class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+      <div class="flex items-center justify-end space-x-2">
+        <button id="saveApiKeyBtn" class="px-4 py-2 text-xs font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+          Save Key
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Box -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-12 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-lg flex items-center space-x-2 border border-slate-700">
+      <span id="toastIcon"></span>
+      <span id="toastMessage">Notification</span>
+    </div>
+  </div>
+
+  <script>
+    /* Application State */
+    const state = {
+      apiKey: '',
+      batchItems: [], // Array of { id, file, name, size, status, turnsCount, fullTranscription, qaResult, error }
+      concurrencyLimit: 5,
+      activeWorkers: 0,
+      isProcessing: false,
+      isPaused: false,
+      currentFilter: 'all',
+      searchQuery: '',
+      startTime: null,
+      processedTimes: []
+    };
+
+    /* DOM References */
+    const audioFileInput = document.getElementById('audioFileInput');
+    const dropZone = document.getElementById('dropZone');
+    const batchCountBadge = document.getElementById('batchCountBadge');
+    const tableCountBadge = document.getElementById('tableCountBadge');
+    const startBatchProcessBtn = document.getElementById('startBatchProcessBtn');
+    const stopBatchProcessBtn = document.getElementById('stopBatchProcessBtn');
+    const clearBatchBtn = document.getElementById('clearBatchBtn');
+    const batchOverallProgressBar = document.getElementById('batchOverallProgressBar');
+    const batchPercentText = document.getElementById('batchPercentText');
+    const batchProgressFraction = document.getElementById('batchProgressFraction');
+    const batchEtaText = document.getElementById('batchEtaText');
+    const downloadConsolidatedBatchCsvBtn = document.getElementById('downloadConsolidatedBatchCsvBtn');
+    const csvReadyCount = document.getElementById('csvReadyCount');
+    const batchTableBody = document.getElementById('batchTableBody');
+    const batchSearchInput = document.getElementById('batchSearchInput');
+
+    /* KPI Card Elements */
+    const statTotalCount = document.getElementById('statTotalCount');
+    const statCompletedCount = document.getElementById('statCompletedCount');
+    const statCompletedPct = document.getElementById('statCompletedPct');
+    const statActiveWorkersCount = document.getElementById('statActiveWorkersCount');
+    const statQueuedCount = document.getElementById('statQueuedCount');
+    const statFailedCount = document.getElementById('statFailedCount');
+    const statThroughput = document.getElementById('statThroughput');
+    const filterAllCount = document.getElementById('filterAllCount');
+    const filterCompletedCount = document.getElementById('filterCompletedCount');
+    const filterProcessingCount = document.getElementById('filterProcessingCount');
+    const filterQueuedCount = document.getElementById('filterQueuedCount');
+    const filterErrorCount = document.getElementById('filterErrorCount');
+
+    /* Concurrency buttons */
+    const concurrencyBtns = document.querySelectorAll('.concurrency-btn');
+    const concurrencyValueBadge = document.getElementById('concurrencyValueBadge');
+
+    /* Modals and Tabs */
+    const inspectorModal = document.getElementById('inspectorModal');
+    const inspectorModalFileName = document.getElementById('inspectorModalFileName');
+    const inspectorModalText = document.getElementById('inspectorModalText');
+    const inspectorModalScoreBadge = document.getElementById('inspectorModalScoreBadge');
+    const inspectorModalReasonText = document.getElementById('inspectorModalReasonText');
+    const inspectorOverallStatus = document.getElementById('inspectorOverallStatus');
+    const inspectorFatalTrigger = document.getElementById('inspectorFatalTrigger');
+    const inspectorSummaryText = document.getElementById('inspectorSummaryText');
+    const inspectorTable2Body = document.getElementById('inspectorTable2Body');
+
+    const modalTabAudit = document.getElementById('modalTabAudit');
+    const modalTabTranscript = document.getElementById('modalTabTranscript');
+    const modalAuditContent = document.getElementById('modalAuditContent');
+    const modalTranscriptContent = document.getElementById('modalTranscriptContent');
+
+    const closeInspectorModal = document.getElementById('closeInspectorModal');
+    const closeInspectorModalBtn = document.getElementById('closeInspectorModalBtn');
+    const modalCopyBtn = document.getElementById('modalCopyBtn');
+
+    const apiKeyModal = document.getElementById('apiKeyModal');
+    const apiKeyToggleBtn = document.getElementById('apiKeyToggleBtn');
+    const closeApiKeyModal = document.getElementById('closeApiKeyModal');
+    const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
+    const customApiKeyInput = document.getElementById('customApiKeyInput');
+    const quickSampleBatchBtn = document.getElementById('quickSampleBatchBtn');
+
+    let toastTimeout = null;
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toastNotification');
+      const msg = document.getElementById('toastMessage');
+      const icon = document.getElementById('toastIcon');
+      if (!toast || !msg) return;
+
+      msg.textContent = message;
+      if (type === 'success') {
+        icon.innerHTML = '<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+      } else if (type === 'error') {
+        icon.innerHTML = '<svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+      } else {
+        icon.innerHTML = '<svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+      }
+
+      toast.classList.remove('translate-y-12', 'opacity-0');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-12', 'opacity-0');
+      }, 3500);
+    }
+
+    if (modalTabAudit && modalTabTranscript) {
+      modalTabAudit.addEventListener('click', () => {
+        modalTabAudit.className = 'px-3 py-2 border-b-2 border-indigo-600 text-indigo-600 focus:outline-none';
+        modalTabTranscript.className = 'px-3 py-2 text-slate-500 hover:text-slate-700 border-b-2 border-transparent focus:outline-none';
+        modalAuditContent.classList.remove('hidden');
+        modalTranscriptContent.classList.add('hidden');
+      });
+      modalTabTranscript.addEventListener('click', () => {
+        modalTabTranscript.className = 'px-3 py-2 border-b-2 border-indigo-600 text-indigo-600 focus:outline-none';
+        modalTabAudit.className = 'px-3 py-2 text-slate-500 hover:text-slate-700 border-b-2 border-transparent focus:outline-none';
+        modalTranscriptContent.classList.remove('hidden');
+        modalAuditContent.classList.add('hidden');
+      });
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result;
+          const base64Data = result.includes(',') ? result.split(',')[1] : result;
+          resolve(base64Data);
+        };
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function resolveAudioMimeType(file) {
+      if (file.type && file.type.startsWith('audio/')) return file.type;
+      const ext = file.name.split('.').pop().toLowerCase();
+      switch (ext) {
+        case 'mp3': return 'audio/mp3';
+        case 'wav': return 'audio/wav';
+        case 'm4a': return 'audio/m4a';
+        case 'ogg': return 'audio/ogg';
+        case 'flac': return 'audio/flac';
+        case 'aac': return 'audio/aac';
+        default: return 'audio/wav';
+      }
+    }
+
+    async function processAudioWithGemini(file, retryCount = 0) {
+      const apiKey = state.apiKey || "";
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+      const base64Audio = await fileToBase64(file);
+      const mimeType = resolveAudioMimeType(file);
+
+      const systemPrompt = `You are a call quality analyst reviewing a customer support call transcript/recording for Royal Brothers. Evaluate the agent's performance strictly based on evidence in the conversation. Do not assume or infer beyond what is said in the transcript.
+
+Follow these strict output sections:
+1. DIARIZATION & VERBATIM TRANSCRIPTION:
+   - Transcribe 100% of the audio verbatim.
+   - Bifurcate into "Agent" or "Customer" with timestamps [MM:SS].
+
+2. METADATA EXTRACTION:
+   Extract these specific fields:
+   - "callType": Pre-booking, after-booking, or document verification.
+   - "city": City name (e.g., Bangalore, Hyderabad, Amritsar).
+   - "location": Name of location within the city (e.g., Majestic, Indiranagar, Koramangala).
+   - "vehicleModel": Name of vehicle model the customer is interested in.
+   - "saleLostReason": If not booked on-call, the reason for denial from the customer.
+   - "customerFeedback": If customer gave any feedback for company, vehicle, or employee.
+   (Use "N/A" if the information is not present).
+
+3. 13-POINT QA RUBRIC EVALUATION (Total 100 Points):
+   Evaluate the call against the following 13 parameters. For each, determine the 'scoreObtained' strictly based on rules below, and provide a 1-sentence 'reason' (especially explaining lost points). 
+   *NOTE ON "NA"*: If a parameter allows 'NA' (No Opportunity) and the scenario doesn't apply, you MUST award the MAX points for that parameter so the overall score isn't unfairly penalized.
+
+   1. Opening: (Max 10) Opening within 10 secs with self intro & brand representation. (Followed = 10, Not Followed = 0)
+   2. Customer Name Confirmation: (Max 5) Confirm customer name. (Followed = 5, Not Followed = 0)
+   3. Usage of Apology/Empathy: (Max 15) Apologize for any issue faced. (Followed = 15, Not Followed = 0)
+   4. Professionalism (FATAL): (Max 3) Use only professional language, no raising voice, rude or sarcastic behavior. Laughing is unprofessional. (Followed = 3, Not Followed = 0)
+   5. Hold Protocol (FATAL): (Max 3) Seek permission before hold, release within 60s, avoid dead air >15s. (Followed = 3, Not Followed = 0)
+   6. Objection Handling (FATAL): (Max 10) Handle objection politely and provide appropriate solution. (Followed = 10, Not Followed = 0)
+   7. Creating urgency for on-call booking (FATAL): (Max 10) If New Booking Enquiry: create urgency for on-call booking. (Followed = 10, Not Followed = 0, NA = 10)
+   8. Booking through Agent: (Max 10) If New Booking Enquiry: get the booking done on call. (Followed = 10, Not Followed = 0, NA = 10)
+   9. Playstore Positive ratings pitch: (Max 8) If booking is done or resolution provided, request rating. (Followed = 8, Not Followed = 0, NA = 8)
+   10. IVR Feedback Survey Capturing (FATAL): (Max 3) If booking done/resolution provided, inform customer to provide IVR feedback. (Followed = 3, Not Followed = 0, NA = 3)
+   11. Call Closing Adherence: (Max 3) Ask is there anything else to assist, if no provide standard closing. (Followed = 3, Not Followed = 0)
+   12. Overall Softskills: (Max 10) Sum sub-parameters: active listening(2), clarity of speech(2), Acknowledgement(2), Positive Language(2), Other softskills(2).
+   13. Customer Sentiment: (Max 10) Rate sentiment out of 10.
+
+4. OVERALL SCORING & STATUS:
+   - Calculate 'totalScore' (sum of all scoreObtained, Max 100).
+   - 'overallCallStatus': "Fatal Fail" if ANY (FATAL) parameter received a score of 0. Otherwise, "Pass".
+   - 'fatalTriggers': List names of failed fatal parameters, or "None".
+   - 'overallSummary': 2-3 sentence summary and coaching priority.`;
+
+      const userInstruction = `Transcribe this audio recording 100% verbatim, bifurcating into Agent and Customer. Simultaneously, evaluate the agent against the complete 13-point Royal Brothers rubric and extract required metadata.`;
+
+      const payload = {
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { text: userInstruction },
+              {
+                inlineData: {
+                  mimeType: mimeType,
+                  data: base64Audio
+                }
+              }
+            ]
+          }
+        ],
+        systemInstruction: {
+          parts: [{ text: systemPrompt }]
+        },
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "OBJECT",
+            properties: {
+              totalScore: { type: "INTEGER", description: "Total score out of 100" },
+              overallCallStatus: { type: "STRING", enum: ["Pass", "Fatal Fail"] },
+              fatalTriggers: { type: "STRING" },
+              overallSummary: { type: "STRING" },
+              callType: { type: "STRING" },
+              city: { type: "STRING" },
+              location: { type: "STRING" },
+              vehicleModel: { type: "STRING" },
+              saleLostReason: { type: "STRING" },
+              customerFeedback: { type: "STRING" },
+              complianceChecks: {
+                type: "ARRAY",
+                items: {
+                  type: "OBJECT",
+                  properties: {
+                    parameterNumber: { type: "INTEGER" },
+                    parameterName: { type: "STRING" },
+                    isFatal: { type: "BOOLEAN" },
+                    maxScore: { type: "INTEGER" },
+                    scoreObtained: { type: "INTEGER" },
+                    reason: { type: "STRING" }
+                  },
+                  required: ["parameterNumber", "parameterName", "isFatal", "maxScore", "scoreObtained", "reason"]
+                }
+              },
+              turns: {
+                type: "ARRAY",
+                items: {
+                  type: "OBJECT",
+                  properties: {
+                    speaker: { type: "STRING", enum: ["Agent", "Customer"] },
+                    timestamp: { type: "STRING" },
+                    text: { type: "STRING" }
+                  },
+                  required: ["speaker", "timestamp", "text"]
+                }
+              }
+            },
+            required: ["totalScore", "overallCallStatus", "fatalTriggers", "overallSummary", "callType", "city", "location", "vehicleModel", "saleLostReason", "customerFeedback", "complianceChecks", "turns"]
+          }
+        }
+      };
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          if ((response.status === 429 || response.status >= 500) && retryCount < 4) {
+            const delay = Math.pow(2, retryCount) * 2000;
+            await new Promise(r => setTimeout(r, delay));
+            return processAudioWithGemini(file, retryCount + 1);
+          }
+          const errText = await response.text();
+          throw new Error(`API ${response.status}: ${errText.slice(0, 100)}`);
+        }
+
+        const data = await response.json();
+        const rawJsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawJsonText) {
+          throw new Error("No transcription content returned by Gemini.");
+        }
+
+        const parsed = JSON.parse(rawJsonText);
+        const turns = parsed.turns || [];
+        const fullTranscription = turns.length > 0
+          ? turns.map(t => `[${t.timestamp || '00:00'}] ${t.speaker}: ${t.text}`).join('\n\n')
+          : "No audible dialogue detected in recording.";
+
+        return {
+          turnsCount: turns.length,
+          fullTranscription: fullTranscription,
+          qaResult: parsed
+        };
+      } catch (error) {
+        if (retryCount < 2) {
+          await new Promise(r => setTimeout(r, 2500));
+          return processAudioWithGemini(file, retryCount + 1);
+        }
+        throw error;
+      }
+    }
+    async function runConcurrentWorkerPool() {
+      if (state.isProcessing || state.isPaused) return;
+
+      const queuedItems = state.batchItems.filter(i => i.status === 'queued');
+      if (queuedItems.length === 0) {
+        showToast('All audio files in batch have been processed!', 'success');
+        updateUI();
+        return;
+      }
+
+      state.isProcessing = true;
+      state.startTime = Date.now();
+      startBatchProcessBtn.disabled = true;
+      stopBatchProcessBtn.disabled = false;
+      showToast(`Started Royal Brothers QA audit with ${state.concurrencyLimit} workers...`, 'info');
+
+      const workerPool = [];
+      let nextIndex = 0;
+
+      async function worker() {
+        while (nextIndex < queuedItems.length && !state.isPaused) {
+          const item = queuedItems[nextIndex++];
+          if (!item) break;
+
+          item.status = 'processing';
+          state.activeWorkers++;
+          updateUI();
+
+          const t0 = performance.now();
+          try {
+            const result = await processAudioWithGemini(item.file);
+            item.status = 'completed';
+            item.turnsCount = result.turnsCount;
+            item.fullTranscription = result.fullTranscription;
+            item.qaResult = result.qaResult;
+            state.processedTimes.push(performance.now() - t0);
+          } catch (err) {
+            console.error(`Error processing ${item.name}:`, err);
+            item.status = 'error';
+            item.error = err.message;
+          } finally {
+            state.activeWorkers--;
+            updateUI();
+          }
+        }
+      }
+
+      const activeConcur = Math.min(state.concurrencyLimit, queuedItems.length);
+      for (let i = 0; i < activeConcur; i++) {
+        workerPool.push(worker());
+      }
+
+      await Promise.all(workerPool);
+
+      state.isProcessing = false;
+      startBatchProcessBtn.disabled = false;
+      stopBatchProcessBtn.disabled = true;
+      updateUI();
+
+      const completed = state.batchItems.filter(i => i.status === 'completed').length;
+      showToast(`Audit cycle ended (${completed} ready).`, 'info');
+    }
+
+    function addFilesToBatch(fileList) {
+      const incoming = Array.from(fileList);
+      const currentCount = state.batchItems.length;
+
+      if (currentCount >= 500) {
+        showToast('Maximum batch capacity of 500 files reached!', 'error');
+        return;
+      }
+
+      const availableSlots = 500 - currentCount;
+      const toAdd = incoming.slice(0, availableSlots);
+      toAdd.forEach(file => {
+        const item = {
+          id: 'item_' + Math.random().toString(36).substr(2, 9),
+          file: file,
+          name: file.name,
+          size: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
+          status: 'queued',
+          turnsCount: 0,
+          fullTranscription: '',
+          qaResult: null,
+          error: ''
+        };
+        state.batchItems.push(item);
+      });
+
+      updateUI();
+      showToast(`Added ${toAdd.length} file(s) to queue. Total: ${state.batchItems.length}`, 'success');
+    }
+
+    function generateSyntheticCallWav(freq1 = 440, freq2 = 330, seconds = 6) {
+      const sampleRate = 16000;
+      const numSamples = sampleRate * seconds;
+      const buffer = new ArrayBuffer(44 + numSamples * 2);
+      const view = new DataView(buffer);
+
+      function writeString(offset, string) {
+        for (let i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      }
+
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + numSamples * 2, true);
+      writeString(8, 'WAVE');
+      writeString(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeString(36, 'data');
+      view.setUint32(40, numSamples * 2, true);
+
+      for (let i = 0; i < numSamples; i++) {
+        const t = i / sampleRate;
+        const tone = (t % 2 < 1) ? Math.sin(2 * Math.PI * freq1 * t) : Math.sin(2 * Math.PI * freq2 * t);
+        const sample = Math.max(-1, Math.min(1, tone * 0.3)) * 0x7FFF;
+        view.setInt16(44 + i * 2, sample, true);
+      }
+      return new Blob([buffer], { type: 'audio/wav' });
+    }
+
+    if (quickSampleBatchBtn) {
+      quickSampleBatchBtn.addEventListener('click', () => {
+        const sampleNames = [
+          'rb_call_bike_rental_booking_koramangala.wav',
+          'rb_call_security_deposit_refund_delay.wav',
+          'rb_call_helmet_and_fuel_charges_query.wav',
+          'rb_call_late_return_penalty_dispute.wav',
+          'rb_call_breakdown_assistance_hebbal.wav',
+          'rb_call_kyc_driving_license_approval.wav',
+          'rb_call_subscription_monthly_pass_renew.wav',
+          'rb_call_app_payment_failure_upi_deducted.wav',
+          'rb_call_vehicle_exchange_battery_low.wav',
+          'rb_call_dropoff_location_change_request.wav'
+        ];
+
+        const samples = sampleNames.map((name, i) => {
+          const f1 = 300 + (i * 30);
+          const f2 = 450 + (i * 20);
+          const blob = generateSyntheticCallWav(f1, f2, 5 + (i % 3));
+          return new File([blob], name, { type: 'audio/wav' });
+        });
+
+        addFilesToBatch(samples);
+      });
+    }
+
+    function updateUI() {
+      const total = state.batchItems.length;
+      const completed = state.batchItems.filter(i => i.status === 'completed').length;
+      const processing = state.batchItems.filter(i => i.status === 'processing').length;
+      const queued = state.batchItems.filter(i => i.status === 'queued').length;
+      const failed = state.batchItems.filter(i => i.status === 'error').length;
+
+      // Update Top KPIs
+      statTotalCount.textContent = total;
+      statCompletedCount.textContent = completed;
+      statActiveWorkersCount.textContent = state.activeWorkers;
+      statQueuedCount.textContent = queued;
+      statFailedCount.textContent = `${failed} fail`;
+
+      const completedPct = total > 0 ? Math.round((completed / total) * 100) : 0;
+      statCompletedPct.textContent = `(${completedPct}%)`;
+
+      // Filter Counts
+      filterAllCount.textContent = total;
+      filterCompletedCount.textContent = completed;
+      filterProcessingCount.textContent = processing;
+      filterQueuedCount.textContent = queued;
+      filterErrorCount.textContent = failed;
+
+      // Badges
+      batchCountBadge.textContent = `${total} / 500`;
+      tableCountBadge.textContent = `${total} records`;
+      csvReadyCount.textContent = completed;
+
+      // Progress bar & ETA
+      batchPercentText.textContent = `${completedPct}%`;
+      batchOverallProgressBar.style.width = `${completedPct}%`;
+      batchProgressFraction.textContent = `${completed} / ${total} Processed`;
+
+      if (state.isProcessing && state.processedTimes.length > 0 && queued > 0) {
+        const avgTimeMs = state.processedTimes.reduce((a, b) => a + b, 0) / state.processedTimes.length;
+        const remainingTimeSec = Math.ceil((queued * (avgTimeMs / 1000)) / state.concurrencyLimit);
+        batchEtaText.textContent = `ETA: ~${remainingTimeSec}s`;
+
+        const minutesElapsed = (Date.now() - state.startTime) / 60000;
+        if (minutesElapsed > 0.1) {
+          const throughputVal = (completed / minutesElapsed).toFixed(1);
+          statThroughput.textContent = `${throughputVal} fl/min`;
+        }
+      } else if (completed === total && total > 0) {
+        batchEtaText.textContent = 'Completed';
+      } else {
+        batchEtaText.textContent = 'ETA: --';
+      }
+
+      // Button states
+      startBatchProcessBtn.disabled = state.isProcessing || queued === 0;
+      stopBatchProcessBtn.disabled = !state.isProcessing;
+      downloadConsolidatedBatchCsvBtn.disabled = completed === 0;
+
+      renderTable();
+    }
+
+    function renderScoreBadge(score) {
+      if (score === null || score === undefined) return '<span class="text-slate-400 font-mono">--</span>';
+      let colorClass = 'bg-slate-100 text-slate-700';
+      if (score >= 90) colorClass = 'bg-emerald-100 text-emerald-800 border border-emerald-300';
+      else if (score >= 70) colorClass = 'bg-blue-100 text-blue-800 border border-blue-300';
+      else if (score >= 50) colorClass = 'bg-amber-100 text-amber-800 border border-amber-300';
+      else if (score >= 30) colorClass = 'bg-orange-100 text-orange-800 border border-orange-300';
+      else colorClass = 'bg-rose-100 text-rose-800 border border-rose-300';
+
+      return `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono font-bold ${colorClass}">${score} / 100</span>`;
+    }
+
+    function renderTable() {
+      if (!batchTableBody) return;
+
+      let items = state.batchItems;
+
+      if (state.currentFilter !== 'all') {
+        items = items.filter(i => i.status === state.currentFilter);
+      }
+
+      if (state.searchQuery.trim() !== '') {
+        const q = state.searchQuery.toLowerCase();
+        items = items.filter(i => {
+          const summary = i.qaResult?.overallSummary || '';
+          const status = i.qaResult?.overallCallStatus || '';
+          const meta = (i.qaResult?.city || '') + ' ' + (i.qaResult?.vehicleModel || '');
+          return i.name.toLowerCase().includes(q) || 
+                 i.fullTranscription.toLowerCase().includes(q) ||
+                 summary.toLowerCase().includes(q) ||
+                 meta.toLowerCase().includes(q) ||
+                 status.toLowerCase().includes(q);
+        });
+      }
+
+      if (items.length === 0) {
+        batchTableBody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center py-12 text-slate-400">
+              <p class="text-xs font-medium">No matching audio records found</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      let html = '';
+      items.forEach((item, index) => {
+        let statusBadge = '';
+        if (item.status === 'completed') {
+          const isFatal = item.qaResult?.overallCallStatus === 'Fatal Fail';
+          statusBadge = isFatal
+            ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300">Fatal Fail</span>`
+            : `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">Pass</span>`;
+        } else if (item.status === 'processing') {
+          statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-100 text-indigo-800 animate-pulse">Processing</span>`;
+        } else if (item.status === 'error') {
+          statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-800">Failed</span>`;
+        } else {
+          statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600">Queued</span>`;
+        }
+
+        const scoreBadge = renderScoreBadge(item.qaResult?.totalScore);
+        
+        let failedParams = item.qaResult?.complianceChecks?.filter(c => c.scoreObtained === 0).map(c => c.parameterName).join(', ');
+        let reasonExcerpt = failedParams 
+          ? `<span class="text-rose-600 truncate block" title="${failedParams}">Lost points: ${failedParams}</span>` 
+          : (item.qaResult && item.qaResult.totalScore === 100 ? `<span class="text-emerald-600">Perfect Call</span>` : `<span class="text-slate-400">-</span>`);
+          
+        if (item.error) reasonExcerpt = `<span class="text-red-500 italic truncate" title="${item.error}">${item.error}</span>`;
+        else if (!item.qaResult) reasonExcerpt = `<span class="text-slate-400 italic">Pending QA...</span>`;
+
+        const metadataBlock = item.qaResult 
+          ? `<div class="text-[10px] leading-tight">
+              <span class="font-semibold text-slate-800">${item.qaResult.city !== 'N/A' ? item.qaResult.city : 'Unknown City'} - ${item.qaResult.location !== 'N/A' ? item.qaResult.location : ''}</span><br/>
+              <span class="text-slate-500">${item.qaResult.callType !== 'N/A' ? item.qaResult.callType : 'Unknown Call Type'}</span><br/>
+              <span class="text-indigo-600 truncate block mt-0.5" title="${item.qaResult.vehicleModel}">${item.qaResult.vehicleModel !== 'N/A' ? item.qaResult.vehicleModel : ''}</span>
+             </div>`
+          : `<span class="text-slate-400 italic">...</span>`;
+
+        const excerpt = item.fullTranscription
+          ? item.fullTranscription.replace(/\n/g, ' ').slice(0, 75) + '...'
+          : `<span class="text-slate-400 italic">Pending transcription...</span>`;
+
+        html += `
+          <tr class="hover:bg-slate-50 border-b border-slate-100 transition-colors">
+            <td class="py-2.5 px-3 text-center font-mono text-slate-400">${index + 1}</td>
+            <td class="py-2.5 px-4 font-mono font-medium text-indigo-700 truncate max-w-[150px] border-r border-slate-100" title="${item.name}">
+              ${item.name}
+              <span class="block text-[10px] text-slate-400 font-sans font-normal">${item.size}</span>
+            </td>
+            <td class="py-2.5 px-3 text-center">${statusBadge}</td>
+            <td class="py-2.5 px-3 text-center">${scoreBadge}</td>
+            <td class="py-2.5 px-4 border-r border-slate-100 truncate max-w-[150px]">${metadataBlock}</td>
+            <td class="py-2.5 px-4 text-[11px] text-slate-600 max-w-[200px] truncate border-r border-slate-100">
+              ${reasonExcerpt}
+            </td>
+            <td class="py-2.5 px-4 font-mono text-[11px] text-slate-600 max-w-xs truncate">${excerpt}</td>
+            <td class="py-2.5 px-3 text-center">
+              <button class="px-2 py-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded transition-colors" onclick="window.inspectTranscript('${item.id}')">
+                Audit
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      batchTableBody.innerHTML = html;
+    }
+    window.inspectTranscript = function(id) {
+      const item = state.batchItems.find(i => i.id === id);
+      if (!item) return;
+
+      inspectorModalFileName.textContent = item.name;
+      inspectorModalText.textContent = item.fullTranscription || (item.error ? `Error: ${item.error}` : 'Pending transcription.');
+
+      const qa = item.qaResult;
+      if (qa) {
+        const isFatal = qa.overallCallStatus === 'Fatal Fail';
+        inspectorOverallStatus.textContent = qa.overallCallStatus || 'Pass';
+        inspectorOverallStatus.className = isFatal 
+          ? 'ml-2 font-bold px-2 py-0.5 rounded-md text-xs bg-rose-100 text-rose-800 border border-rose-300'
+          : 'ml-2 font-bold px-2 py-0.5 rounded-md text-xs bg-emerald-100 text-emerald-800 border border-emerald-300';
+
+        inspectorFatalTrigger.textContent = isFatal && qa.fatalTriggers && qa.fatalTriggers !== 'None' 
+          ? `Fatal Trigger: ${qa.fatalTriggers}` 
+          : '';
+
+        inspectorSummaryText.textContent = qa.overallSummary || 'No summary available.';
+        inspectorModalScoreBadge.textContent = qa.totalScore !== undefined ? `${qa.totalScore} / 100` : '-- / 100';
+
+        // Populate Metadata grid
+        document.getElementById('metaCallType').textContent = qa.callType || 'N/A';
+        document.getElementById('metaCity').textContent = qa.city || 'N/A';
+        document.getElementById('metaLocation').textContent = qa.location || 'N/A';
+        document.getElementById('metaVehicle').textContent = qa.vehicleModel || 'N/A';
+        document.getElementById('metaSaleLost').textContent = qa.saleLostReason || 'N/A';
+        document.getElementById('metaFeedback').textContent = qa.customerFeedback || 'N/A';
+
+        let table2Html = '';
+        if (qa.complianceChecks && Array.isArray(qa.complianceChecks)) {
+          qa.complianceChecks.forEach(c => {
+            const fatalTag = c.isFatal ? '<span class="text-[9px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1 py-0.2 rounded ml-1">FATAL</span>' : '';
+            const scoreColor = c.scoreObtained === c.maxScore ? 'text-emerald-600' : (c.scoreObtained === 0 ? 'text-rose-600' : 'text-amber-600');
+            table2Html += `
+              <tr class="hover:bg-slate-50 border-b border-slate-100">
+                <td class="py-2 px-3 font-medium text-slate-800">${c.parameterNumber}. ${c.parameterName} ${fatalTag}</td>
+                <td class="py-2 px-3 text-center font-mono font-bold ${scoreColor}">${c.scoreObtained}/${c.maxScore}</td>
+                <td class="py-2 px-3 text-slate-600 text-[11px]">${c.reason}</td>
+              </tr>
+            `;
+          });
+        }
+        inspectorTable2Body.innerHTML = table2Html;
+      } else {
+        inspectorOverallStatus.textContent = 'Pending';
+        inspectorOverallStatus.className = 'ml-2 font-bold px-2 py-0.5 rounded-md text-xs bg-slate-100 text-slate-600';
+        inspectorFatalTrigger.textContent = '';
+        inspectorSummaryText.textContent = item.error ? `Failed: ${item.error}` : 'Audit analysis pending completion.';
+        inspectorModalScoreBadge.textContent = '-- / 100';
+        
+        document.getElementById('metaCallType').textContent = '--';
+        document.getElementById('metaCity').textContent = '--';
+        document.getElementById('metaLocation').textContent = '--';
+        document.getElementById('metaVehicle').textContent = '--';
+        document.getElementById('metaSaleLost').textContent = '--';
+        document.getElementById('metaFeedback').textContent = '--';
+
+        inspectorTable2Body.innerHTML = '<tr><td colspan="3" class="text-center py-6 text-slate-400">Audit pending...</td></tr>';
+      }
+
+      inspectorModal.classList.remove('hidden');
+    };
+
+    function escapeCsvCell(value) {
+      if (value === null || value === undefined) return '""';
+      const str = String(value);
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+
+    function triggerDownload(content, fileName, mime = 'text/csv;charset=utf-8;') {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function exportConsolidatedBatchCsv() {
+      const completed = state.batchItems.filter(i => i.status === 'completed' && i.fullTranscription);
+      if (completed.length === 0) {
+        showToast('No completed audio audits to export.', 'error');
+        return;
+      }
+
+      let csv = '\uFEFF';
+
+      // Required Headers as per user constraints + Rubric Parameters
+      const headers = [
+        'File name',
+        'Call type',
+        'City',
+        'Location',
+        'Vehicle Model',
+        'If not booked on-call - Sale lost reason',
+        'Customer feedback',
+        'Overall Call Status',
+        'Total Score',
+        'Fatal Parameter Triggers',
+        'Overall Summary'
+      ];
+      
+      const paramNames = [
+        'Opening', 'Customer Name Confirmation', 'Usage of Apology/Empathy', 'Professionalism (FATAL)', 
+        'Hold Protocol (FATAL)', 'Objection Handling (FATAL)', 'Creating urgency for on-call booking (FATAL)', 
+        'Booking through Agent', 'Playstore Positive ratings pitch', 'IVR Feedback Survey Capturing (FATAL)', 
+        'Call Closing Adherence', 'Overall Softskills', 'Customer Sentiment'
+      ];
+
+      const paramHeaders = paramNames.flatMap((name, i) => [
+        `${i+1}. ${name} Score`,
+        `${i+1}. ${name} Reason`
+      ]);
+
+      const fullHeaders = [...headers, ...paramHeaders, 'Transcription'];
+      csv += fullHeaders.map(escapeCsvCell).join(',') + '\r\n';
+
+      completed.forEach(item => {
+        const qa = item.qaResult || {};
+        
+        // Ensure mapping aligns perfectly with requested columns
+        const baseRow = [
+          item.name,
+          qa.callType || 'N/A',
+          qa.city || 'N/A',
+          qa.location || 'N/A',
+          qa.vehicleModel || 'N/A',
+          qa.saleLostReason || 'N/A',
+          qa.customerFeedback || 'N/A',
+          qa.overallCallStatus || 'Pass',
+          qa.totalScore !== undefined ? qa.totalScore : '',
+          qa.fatalTriggers || 'None',
+          qa.overallSummary || ''
+        ];
+
+        const paramRow = [];
+        const checks = qa.complianceChecks || [];
+        for (let i = 1; i <= 13; i++) {
+            const check = checks.find(c => c.parameterNumber === i) || {};
+            paramRow.push(check.scoreObtained !== undefined ? check.scoreObtained : '');
+            paramRow.push(check.reason || '');
+        }
+        
+        const row = [...baseRow, ...paramRow, item.fullTranscription];
+        csv += row.map(escapeCsvCell).join(',') + '\r\n';
+      });
+
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const outName = `royal_brothers_call_quality_audit_${completed.length}_calls_${dateStr}.csv`;
+      triggerDownload(csv, outName);
+      showToast(`Exported Royal Brothers QA CSV (${completed.length} calls)!`, 'success');
+    }
+
+    if (downloadConsolidatedBatchCsvBtn) {
+      downloadConsolidatedBatchCsvBtn.addEventListener('click', exportConsolidatedBatchCsv);
+    }
+
+    concurrencyBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        concurrencyBtns.forEach(b => {
+          b.className = 'concurrency-btn px-2 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700';
+        });
+        btn.className = 'concurrency-btn px-2 py-1.5 text-xs font-semibold rounded-lg border border-indigo-600 bg-indigo-50 text-indigo-700 shadow-xs';
+        state.concurrencyLimit = parseInt(btn.getAttribute('data-concurrency'), 10);
+        concurrencyValueBadge.textContent = `${state.concurrencyLimit} Parallel`;
+        showToast(`Concurrency updated to ${state.concurrencyLimit} parallel API workers`, 'info');
+      });
+    });
+
+    if (startBatchProcessBtn) {
+      startBatchProcessBtn.addEventListener('click', () => {
+        state.isPaused = false;
+        runConcurrentWorkerPool();
+      });
+    }
+
+    if (stopBatchProcessBtn) {
+      stopBatchProcessBtn.addEventListener('click', () => {
+        state.isPaused = true;
+        stopBatchProcessBtn.disabled = true;
+        showToast('Batch paused. Completing active workers...', 'info');
+      });
+    }
+
+    if (clearBatchBtn) {
+      clearBatchBtn.addEventListener('click', () => {
+        state.isPaused = true;
+        state.batchItems = [];
+        state.activeWorkers = 0;
+        state.processedTimes = [];
+        updateUI();
+        showToast('Batch queue cleared', 'info');
+      });
+    }
+
+    document.querySelectorAll('.status-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.status-filter-btn').forEach(b => {
+          b.className = 'status-filter-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50';
+        });
+        btn.className = 'status-filter-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-2xs';
+        state.currentFilter = btn.getAttribute('data-status');
+        renderTable();
+      });
+    });
+
+    if (batchSearchInput) {
+      batchSearchInput.addEventListener('input', (e) => {
+        state.searchQuery = e.target.value;
+        renderTable();
+      });
+    }
+
+    if (audioFileInput) {
+      audioFileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          addFilesToBatch(e.target.files);
+          audioFileInput.value = '';
+        }
+      });
+    }
+
+    if (dropZone) {
+      dropZone.addEventListener('click', () => audioFileInput && audioFileInput.click());
+      ['dragenter', 'dragover'].forEach(name => {
+        dropZone.addEventListener(name, (e) => {
+          e.preventDefault();
+          dropZone.classList.add('border-indigo-500', 'bg-indigo-50/60');
+        });
+      });
+      ['dragleave', 'drop'].forEach(name => {
+        dropZone.addEventListener(name, (e) => {
+          e.preventDefault();
+          dropZone.classList.remove('border-indigo-500', 'bg-indigo-50/60');
+        });
+      });
+      dropZone.addEventListener('drop', (e) => {
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          addFilesToBatch(e.dataTransfer.files);
+        }
+      });
+    }
+
+    if (closeInspectorModal) closeInspectorModal.addEventListener('click', () => inspectorModal.classList.add('hidden'));
+    if (closeInspectorModalBtn) closeInspectorModalBtn.addEventListener('click', () => inspectorModal.classList.add('hidden'));
+    if (modalCopyBtn && inspectorModalText) {
+      modalCopyBtn.addEventListener('click', () => {
+        const temp = document.createElement('textarea');
+        temp.value = inspectorModalText.textContent;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        showToast('Copied verbatim transcription to clipboard!', 'success');
+      });
+    }
+
+    if (apiKeyToggleBtn && apiKeyModal) {
+      apiKeyToggleBtn.addEventListener('click', () => apiKeyModal.classList.remove('hidden'));
+    }
+    if (closeApiKeyModal && apiKeyModal) {
+      closeApiKeyModal.addEventListener('click', () => apiKeyModal.classList.add('hidden'));
+    }
+    if (saveApiKeyBtn && customApiKeyInput && apiKeyModal) {
+      saveApiKeyBtn.addEventListener('click', () => {
+        state.apiKey = customApiKeyInput.value.trim();
+        apiKeyModal.classList.add('hidden');
+        showToast(state.apiKey ? 'API Key saved successfully' : 'Default key restored', 'success');
+      });
+    }
+
+    window.onload = function() {
+      updateUI();
+    };
+  </script>
+</body>
+</html>
